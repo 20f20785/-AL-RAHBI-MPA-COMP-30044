@@ -7,6 +7,8 @@ import joblib
 model = joblib.load("rf_model.joblib")
 scaler = joblib.load("scaler.pkl")
 label_encoders = joblib.load("label_encoders.pkl")
+
+# Define the correct order of feature columns (must match training)
 feature_names = [
     'brand', 'processor', 'Ram', 'Ram_type', 'ROM', 'ROM_type', 'GPU',
     'display_size', 'resolution_width', 'resolution_height', 'OS', 'warranty', 'spec_rating'
@@ -29,7 +31,7 @@ os = st.selectbox("Operating System", label_encoders['OS'].classes_)
 warranty = st.selectbox("Warranty (Years)", [0, 1, 2, 3])
 spec_rating = st.slider("Spec Rating", 50.0, 90.0, 70.0)
 
-# Prepare input
+# Create dictionary from inputs
 input_data = {
     'brand': label_encoders['brand'].transform([brand])[0],
     'processor': label_encoders['processor'].transform([processor])[0],
@@ -46,13 +48,14 @@ input_data = {
     'spec_rating': spec_rating
 }
 
-# Create DataFrame and ensure correct column order
+# Convert to DataFrame and reorder columns
 input_df = pd.DataFrame([input_data])
-input_df = input_df[feature_names]  # reorder columns
+input_df = input_df[feature_names]
 
-# Transform and predict
-scaled_input = scaler.transform(input_df)
+# 🔧 FIXED: Use .values to avoid feature name mismatch
+scaled_input = scaler.transform(input_df.values)
 
+# Prediction
 if st.button("Estimate Price"):
     prediction = model.predict(scaled_input)[0]
     st.success(f"💰 Estimated Laptop Price: ₹{prediction * 100000:.2f}")
