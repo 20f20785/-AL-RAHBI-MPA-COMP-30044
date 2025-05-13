@@ -8,7 +8,7 @@ model = joblib.load("rf_model.joblib")
 scaler = joblib.load("scaler.pkl")
 label_encoders = joblib.load("label_encoders.pkl")
 
-# Define the expected features used during training
+# Define expected feature columns (same as model training)
 feature_columns = [
     'brand', 'processor', 'Ram', 'Ram_type', 'ROM', 'ROM_type', 'GPU',
     'display_size', 'resolution_width', 'resolution_height', 'OS', 'warranty', 'spec_rating'
@@ -16,7 +16,7 @@ feature_columns = [
 
 st.title("💻 Laptop Price Estimator")
 
-# Input widgets
+# Input form
 brand = st.selectbox("Brand", label_encoders['brand'].classes_)
 processor = st.selectbox("Processor", label_encoders['processor'].classes_)
 ram = st.slider("RAM (GB)", 4, 64, 8)
@@ -31,7 +31,7 @@ os = st.selectbox("Operating System", label_encoders['OS'].classes_)
 warranty = st.selectbox("Warranty (Years)", [0, 1, 2, 3])
 spec_rating = st.slider("Spec Rating", 50.0, 90.0, 70.0)
 
-# Create the input dictionary
+# Create input dict
 input_data = {
     'brand': label_encoders['brand'].transform([brand])[0],
     'processor': label_encoders['processor'].transform([processor])[0],
@@ -48,23 +48,13 @@ input_data = {
     'spec_rating': spec_rating
 }
 
-# Convert to DataFrame
+# Prepare input DataFrame
 input_df = pd.DataFrame([input_data])
+input_df = input_df[feature_columns]
 
-# ✅ DEBUG: show input shape and scaler expectation
-st.write("Input DataFrame shape:", input_df.shape)
-st.write("Expected features by scaler:", scaler.n_features_in_)
+# Scale and predict
+scaled_input = scaler.transform(input_df.values)
 
-# Check for missing columns
-missing_cols = [col for col in feature_columns if col not in input_df.columns]
-if missing_cols:
-    st.error(f"Missing columns in input: {missing_cols}")
-else:
-    # Reorder columns and scale
-    input_df = input_df[feature_columns]
-    scaled_input = scaler.transform(input_df.values)
-
-    # Predict and show result
-    if st.button("Estimate Price"):
-        prediction = model.predict(scaled_input)[0]
-        st.success(f"💰 Estimated Laptop Price: ₹{prediction * 100000:.2f}")
+if st.button("Estimate Price"):
+    prediction = model.predict(scaled_input)[0]
+    st.success(f"💰 Estimated Laptop Price: ₹{prediction * 100000:.2f}")
