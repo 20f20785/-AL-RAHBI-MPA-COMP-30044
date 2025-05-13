@@ -1,6 +1,6 @@
-# 💻 Laptop Price Estimator – Streamlit App
+# 💻 Laptop Price Estimator 
 
-🔗 **Live App:**  
+🔗 **Live UI:**  
 [Streamlit Deployment](https://wgkfyqstm2pzgzrmtd9dhk.streamlit.app/#9d0c5263)
 
 📁 **Dataset Used:**  
