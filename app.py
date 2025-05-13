@@ -5,8 +5,8 @@ import joblib
 
 # Load model and preprocessing tools
 model = joblib.load("rf_model.joblib")
-scaler = joblib.load("scaler.joblib")
-label_encoders = joblib.load("label_encoders.joblib")
+scaler = joblib.load("scaler.pkl")  # updated
+label_encoders = joblib.load("label_encoders.pkl")  # updated
 
 st.title("💻 Laptop Price Estimator")
 
@@ -25,7 +25,7 @@ os = st.selectbox("Operating System", label_encoders['OS'].classes_)
 warranty = st.selectbox("Warranty (Years)", [0, 1, 2, 3])
 spec_rating = st.slider("Spec Rating", 50.0, 90.0, 70.0)
 
-# Convert inputs into a dataframe
+# Format input for model
 input_data = {
     'brand': label_encoders['brand'].transform([brand])[0],
     'processor': label_encoders['processor'].transform([processor])[0],
@@ -45,7 +45,7 @@ input_data = {
 input_df = pd.DataFrame([input_data])
 scaled_input = scaler.transform(input_df)
 
-# Predict and show result
+# Prediction
 if st.button("Estimate Price"):
     predicted_price = model.predict(scaled_input)[0]
     st.success(f"💰 Estimated Laptop Price: ₹{predicted_price * 100000:.2f}")
